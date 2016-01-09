@@ -30,7 +30,7 @@ stateCheck = function(state) {
   bedroom = client.light("d073d512170d");
   if (lm.isLate()) {
     if (bedroom) {
-      return bedroom.color(0, 0, 15, 2500, 1000, function() {
+      return bedroom.color(0, 0, 20, 2500, 1000, function() {
         return bedroom.off(10 * 60 * 1000);
       });
     }
@@ -39,6 +39,11 @@ stateCheck = function(state) {
       return bedroom.getPower(function(err, powered) {
         if (powered) {
           return bedroom.color(0, 0, 85, 6500);
+        } else {
+          return bedroom.on(0, function() {
+            bedroom.color(0, 0, 85, 6500);
+            return bedroom.off();
+          });
         }
       });
     }

@@ -22,13 +22,17 @@ stateCheck = (state) ->
     bedroom = client.light "d073d512170d"
     if lm.isLate()
         if bedroom
-            bedroom.color 0, 0, 15, 2500, 1000, ->
+            bedroom.color 0, 0, 20, 2500, 1000, ->
                 bedroom.off 10 * 60 * 1000
     else
         if bedroom
             bedroom.getPower (err, powered) ->
                 if powered
                     bedroom.color 0, 0, 85, 6500
+                else
+                    bedroom.on 0, ->
+                        bedroom.color 0, 0, 85, 6500
+                        bedroom.off()
 
 
 delay 60, -> stateCheck()
