@@ -57,8 +57,8 @@ timeCheck = ->
             if not lm.isLate()
                 states.time = "day"
                 setDaymode()
-
-   # states.time = if lm.isLate() then "night" else "day"
+        else
+            states.time = if lm.isLate() then "night" else "day"
 
 delay 60, -> timeCheck()
 

@@ -79,6 +79,9 @@ timeCheck = function() {
         states.time = "day";
         return setDaymode();
       }
+      break;
+    default:
+      return states.time = lm.isLate() ? "night" : "day";
   }
 };
 
