@@ -53,7 +53,12 @@ setNightmode = function() {
   console.log("setNightmode");
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    return bedroom.color(0, 0, 30, 2500);
+    bedroom.color(0, 0, 30, 2500);
+    return bedroom.getState(function(err, data) {
+      if (data.power) {
+        return fadeOff();
+      }
+    });
   }
 };
 

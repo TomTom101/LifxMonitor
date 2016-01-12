@@ -40,6 +40,8 @@ setNightmode = ->
     bedroom = client.light "d073d512170d"
     if bedroom
         bedroom.color 0, 0, 30, 2500
+        bedroom.getState (err, data) ->
+            fadeOff() if data.power
 
 setDaymode = ->
     console.log "setDaymode"
