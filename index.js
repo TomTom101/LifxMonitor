@@ -44,7 +44,7 @@ fadeOff = function() {
   bedroom = client.light("d073d512170d");
   if (bedroom) {
     console.log("fadeOff");
-    return bedroom.off(5 * 60 * 1000);
+    return bedroom.off(2 * 60 * 1000);
   }
 };
 

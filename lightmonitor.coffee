@@ -9,7 +9,7 @@ Number::mapFloat = (in_min, in_max, out_min, out_max) ->
 
 LightMonitor =
     isLate: ->
-        moment().hours() >= 22 || moment().hours() <= 8
+        moment().hours() >= 22 || moment().hours() < 6
 
     getBrightness: ->
         moment.duration

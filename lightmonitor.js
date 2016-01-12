@@ -15,7 +15,7 @@ Number.prototype.mapFloat = function(in_min, in_max, out_min, out_max) {
 
 LightMonitor = {
   isLate: function() {
-    return moment().hours() >= 22 || moment().hours() <= 8;
+    return moment().hours() >= 22 || moment().hours() < 6;
   },
   getBrightness: function() {
     return moment.duration({

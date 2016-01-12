@@ -24,6 +24,7 @@ client.on 'light-online', (light) ->
 lightOnline = ->
     states.light = on
     timeCheck()
+    # Do only when turned on, posibly lost connection and that happens in the middle of the night
     if states.time is "night"
         fadeOff()
 
@@ -32,7 +33,7 @@ fadeOff = ->
     bedroom = client.light "d073d512170d"
     if bedroom
         console.log "fadeOff"
-        bedroom.off 5 * 60 * 1000
+        bedroom.off 2 * 60 * 1000
 
 setNightmode = ->
     console.log "setNightmode"
