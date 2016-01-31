@@ -10,19 +10,6 @@ states =
     light: null
 
 
-client.on 'light-new', (light) ->
-    log "New #{light.id}"
-    ## Goes DIRECTLY to fadeoff after 22, no setNightmode
-    lightOnline()
-
-client.on 'light-offline', (light) ->
-    log "Lost #{light.id}"
-    states.light = off
-
-client.on 'light-online', (light) ->
-    log "Back #{light.id}"
-    lightOnline()
-
 lightOnline = ->
     states.light = on
     timeCheck()
@@ -32,8 +19,8 @@ lightOnline = ->
 
 log = (s) ->
     t = moment().toISOString()
-    log = "#{t} #{s}"
-    console.log log
+    string = "#{t} #{s}"
+    console.log string
 
 fadeOff = ->
     bedroom = client.light "d073d512170d"
@@ -73,6 +60,19 @@ timeCheck = ->
 
 delay 60, -> timeCheck()
 
+
+client.on 'light-new', (light) ->
+    log "New #{light.id}"
+    ## Goes DIRECTLY to fadeoff after 22, no setNightmode
+    lightOnline()
+
+client.on 'light-offline', (light) ->
+    log "Lost #{light.id}"
+    states.light = off
+
+client.on 'light-online', (light) ->
+    log "Back #{light.id}"
+    lightOnline()
 
 client.init()
 

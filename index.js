@@ -18,21 +18,6 @@ states = {
   light: null
 };
 
-client.on('light-new', function(light) {
-  log("New " + light.id);
-  return lightOnline();
-});
-
-client.on('light-offline', function(light) {
-  log("Lost " + light.id);
-  return states.light = false;
-});
-
-client.on('light-online', function(light) {
-  log("Back " + light.id);
-  return lightOnline();
-});
-
 lightOnline = function() {
   states.light = true;
   timeCheck();
@@ -42,10 +27,10 @@ lightOnline = function() {
 };
 
 log = function(s) {
-  var t;
+  var string, t;
   t = moment().toISOString();
-  log = t + " " + s;
-  return console.log(log);
+  string = t + " " + s;
+  return console.log(string);
 };
 
 fadeOff = function() {
@@ -102,6 +87,21 @@ timeCheck = function() {
 
 delay(60, function() {
   return timeCheck();
+});
+
+client.on('light-new', function(light) {
+  log("New " + light.id);
+  return lightOnline();
+});
+
+client.on('light-offline', function(light) {
+  log("Lost " + light.id);
+  return states.light = false;
+});
+
+client.on('light-online', function(light) {
+  log("Back " + light.id);
+  return lightOnline();
 });
 
 client.init();
