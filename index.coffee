@@ -1,5 +1,6 @@
 LifxClient  = require('node-lifx').Client
 lm          = require('./lightmonitor')
+moment      = require('moment')
 client      = new LifxClient()
 
 delay = (sec, func) -> setInterval func, sec * 1000
@@ -10,15 +11,16 @@ states =
 
 
 client.on 'light-new', (light) ->
-    console.log "New #{light.id}"
+    log "New #{light.id}"
+    ## Goes DIRECTLY to fadeoff after 22, no setNightmode
     lightOnline()
 
 client.on 'light-offline', (light) ->
-    console.log "Lost #{light.id}"
+    log "Lost #{light.id}"
     states.light = off
 
 client.on 'light-online', (light) ->
-    console.log "Back #{light.id}"
+    log "Back #{light.id}"
     lightOnline()
 
 lightOnline = ->
@@ -28,23 +30,29 @@ lightOnline = ->
     if states.time is "night"
         fadeOff()
 
+log = (s) ->
+    t = moment().toISOString()
+    log = "#{t} #{s}"
+    console.log log
 
 fadeOff = ->
     bedroom = client.light "d073d512170d"
     if bedroom
-        console.log "fadeOff"
+        log "fadeOff"
         bedroom.off 2 * 60 * 1000
 
 setNightmode = ->
-    console.log "setNightmode"
+    log "setNightmode"
     bedroom = client.light "d073d512170d"
     if bedroom
         bedroom.color 0, 0, 30, 2500
         bedroom.getState (err, data) ->
-            fadeOff() if data.power
+            if data.power
+                log "Light is on"
+                fadeOff()
 
 setDaymode = ->
-    console.log "setDaymode"
+    log "setDaymode"
     bedroom = client.light "d073d512170d"
     if bedroom
         bedroom.color 0, 0, 100, 6500
@@ -67,6 +75,8 @@ delay 60, -> timeCheck()
 
 
 client.init()
+
+log "Started"
 
 ###
 
