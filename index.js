@@ -80,7 +80,8 @@ timeCheck = function() {
       }
       break;
     default:
-      return states.time = lm.isLate() ? "night" : "day";
+      states.time = lm.isLate() ? "night" : "day";
+      return timeCheck();
   }
 };
 
