@@ -13,7 +13,6 @@ states =
 lightOnline = ->
     states.light = on
     timeCheck()
-    # Do only when turned on, posibly lost connection and that happens in the middle of the night
     if states.time is "night"
         fadeOff()
 
@@ -25,18 +24,19 @@ log = (s) ->
 fadeOff = ->
     bedroom = client.light "d073d512170d"
     if bedroom
-        log "fadeOff"
-        bedroom.off 2 * 60 * 1000
+      # Fadeoff only when turned on, posibly lost connection and that happens in the middle of the night
+      bedroom.getPower (err, power) ->
+        if error
+          console.error error
+        else if power
+          log "fadeOff"
+          bedroom.off 2 * 60 * 1000
 
 setNightmode = ->
     log "setNightmode"
     bedroom = client.light "d073d512170d"
     if bedroom
         bedroom.color 0, 0, 30, 2500
-        bedroom.getState (err, data) ->
-            if data.power
-                log "Light is on"
-                fadeOff()
 
 setDaymode = ->
     log "setDaymode"
