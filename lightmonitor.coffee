@@ -14,9 +14,14 @@ LightMonitor =
       long: 13.4725
 
     isLate: ->
-        times = suncalc.getTimes moment(), @position.lat, @position.long
-        moment()
-          .isBetween times.sunset, times.sunriseEnd
+      ## times.sunriseEnd THE NEXT DAY!!!
+      !@isDay()
+
+    isDay: ->
+      times = suncalc.getTimes moment(), @position.lat, @position.long
+      moment()
+      .isBetween times.sunriseEnd, times.sunset
+
 
     clockAngle: (h, m) ->
         m = moment()

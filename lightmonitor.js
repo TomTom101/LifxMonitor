@@ -20,9 +20,12 @@ LightMonitor = {
     long: 13.4725
   },
   isLate: function() {
+    return !this.isDay();
+  },
+  isDay: function() {
     var times;
     times = suncalc.getTimes(moment(), this.position.lat, this.position.long);
-    return moment().isBetween(times.sunset, times.sunriseEnd);
+    return moment().isBetween(times.sunriseEnd, times.sunset);
   },
   clockAngle: function(h, m) {
     m = moment().hours(h).minutes(m);
