@@ -70,20 +70,18 @@ timeCheck = function() {
     case 'day':
       if (lm.isLate()) {
         states.time = "night";
-        setNightmode();
+        return setNightmode();
       }
       break;
     case 'night':
       if (!lm.isLate()) {
         states.time = "day";
-        setDaymode();
+        return setDaymode();
       }
       break;
     default:
-      states.time = lm.isLate() ? "night" : "day";
-      timeCheck();
+      return states.time = lm.isLate() ? "night" : "day";
   }
-  return console.log("Time is " + states.time);
 };
 
 delay(60, function() {

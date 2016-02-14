@@ -57,8 +57,6 @@ timeCheck = ->
                 setDaymode()
         else
             states.time = if lm.isLate() then "night" else "day"
-            timeCheck()
-    console.log "Time is #{states.time}"
 
 delay 60, -> timeCheck()
 
