@@ -25,7 +25,7 @@ fadeOff = ->
     bedroom = client.light "d073d512170d"
     if bedroom
       # Fadeoff only when turned on, posibly lost connection and that happens in the middle of the night
-      bedroom.getPower (err, power) ->
+      bedroom.getPower (error, power) ->
         if error
           console.error error
         else if power

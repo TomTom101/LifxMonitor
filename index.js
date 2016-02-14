@@ -36,7 +36,7 @@ fadeOff = function() {
   var bedroom;
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    return bedroom.getPower(function(err, power) {
+    return bedroom.getPower(function(error, power) {
       if (error) {
         return console.error(error);
       } else if (power) {
