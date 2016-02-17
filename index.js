@@ -52,7 +52,8 @@ setNightmode = function() {
   log("setNightmode");
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    return bedroom.color(0, 0, 30, 2500);
+    bedroom.color(0, 0, 30, 2500);
+    return states.time = "night";
   }
 };
 
@@ -61,7 +62,8 @@ setDaymode = function() {
   log("setDaymode");
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    return bedroom.color(0, 0, 100, 6500);
+    bedroom.color(0, 0, 100, 6500);
+    return states.time = "day";
   }
 };
 
@@ -69,13 +71,11 @@ timeCheck = function() {
   switch (states.time) {
     case 'day':
       if (lm.isLate()) {
-        states.time = "night";
         return setNightmode();
       }
       break;
     case 'night':
       if (!lm.isLate()) {
-        states.time = "day";
         return setDaymode();
       }
       break;

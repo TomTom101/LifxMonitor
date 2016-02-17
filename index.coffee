@@ -37,23 +37,23 @@ setNightmode = ->
     bedroom = client.light "d073d512170d"
     if bedroom
         bedroom.color 0, 0, 30, 2500
+        states.time = "night"
 
 setDaymode = ->
     log "setDaymode"
     bedroom = client.light "d073d512170d"
     if bedroom
         bedroom.color 0, 0, 100, 6500
+        states.time = "day"
 
 timeCheck = ->
     switch states.time
         when 'day'
             if lm.isLate()
-                states.time = "night"
                 setNightmode()
 
         when 'night'
             if not lm.isLate()
-                states.time = "day"
                 setDaymode()
         else
             states.time = if lm.isLate() then "night" else "day"
