@@ -32,6 +32,15 @@ fadeOff = ->
           log "fadeOff"
           bedroom.off 2 * 60 * 1000
 
+isPowered = ->
+    bedroom = client.light "d073d512170d"
+      # Fadeoff only when turned on, posibly lost connection and that happens in the middle of the night
+    bedroom?.getPower (error, power) ->
+      if error
+        console.error error
+
+      power is 1
+
 setNightmode = ->
     log "setNightmode"
     bedroom = client.light "d073d512170d"
@@ -40,11 +49,14 @@ setNightmode = ->
         states.time = "night"
 
 setDaymode = ->
-    log "setDaymode"
-    bedroom = client.light "d073d512170d"
-    if bedroom
-        bedroom.color 0, 0, 100, 6500
-        states.time = "day"
+  log "setDaymode"
+  if isPowered()
+    states.time = "day"
+    return false
+  bedroom = client.light "d073d512170d"
+  if bedroom
+      bedroom.color 0, 0, 100, 6500
+      states.time = "day"
 
 timeCheck = ->
     switch states.time
