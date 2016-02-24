@@ -1,4 +1,4 @@
-var LifxClient, client, delay, fadeOff, lightOnline, lm, log, moment, setDaymode, setNightmode, states, timeCheck;
+var LifxClient, client, delay, fadeOff, isPowered, lightOnline, lm, log, moment, setDaymode, setNightmode, states, timeCheck;
 
 LifxClient = require('node-lifx').Client;
 
@@ -47,6 +47,17 @@ fadeOff = function() {
   }
 };
 
+isPowered = function() {
+  var bedroom;
+  bedroom = client.light("d073d512170d");
+  return bedroom != null ? bedroom.getPower(function(error, power) {
+    if (error) {
+      console.error(error);
+    }
+    return power === 1;
+  }) : void 0;
+};
+
 setNightmode = function() {
   var bedroom;
   log("setNightmode");
@@ -60,6 +71,10 @@ setNightmode = function() {
 setDaymode = function() {
   var bedroom;
   log("setDaymode");
+  if (isPowered()) {
+    return;
+  }
+  return false;
   bedroom = client.light("d073d512170d");
   if (bedroom) {
     bedroom.color(0, 0, 100, 6500);
