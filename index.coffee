@@ -13,6 +13,13 @@ states =
 lightOnline = ->
     states.light = on
     timeCheck()
+    bedroom = client.light "d073d512170d"
+    if bedroom
+      bedroom.getWifiInfo (error, data) ->
+        if error
+          console.error error
+        else
+          console.log data.signal
     if states.time is "night"
         fadeOff()
 

@@ -18,8 +18,19 @@ states = {
 };
 
 lightOnline = function() {
+  var bedroom;
   states.light = true;
   timeCheck();
+  bedroom = client.light("d073d512170d");
+  if (bedroom) {
+    bedroom.getWifiInfo(function(error, data) {
+      if (error) {
+        return console.error(error);
+      } else {
+        return console.log(data.signal);
+      }
+    });
+  }
   if (states.time === "night") {
     return fadeOff();
   }
