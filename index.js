@@ -38,7 +38,7 @@ lightOnline = function() {
 
 log = function(s) {
   var string, t;
-  t = moment().toISOString();
+  t = moment().format();
   string = t + " " + s;
   return console.log(string);
 };
@@ -74,8 +74,14 @@ setNightmode = function() {
   log("setNightmode");
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    bedroom.color(0, 0, 30, 2500);
-    return states.time = "night";
+    return bedroom.color(0, 0, 30, 2500, 0, function(error) {
+      if (error == null) {
+        log(" success!");
+        return states.time = "night";
+      }
+    });
+  } else {
+    return log(" failed.");
   }
 };
 

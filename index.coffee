@@ -24,7 +24,7 @@ lightOnline = ->
         fadeOff()
 
 log = (s) ->
-    t = moment().toISOString()
+    t = moment().format()
     string = "#{t} #{s}"
     console.log string
 
@@ -52,8 +52,12 @@ setNightmode = ->
     log "setNightmode"
     bedroom = client.light "d073d512170d"
     if bedroom
-        bedroom.color 0, 0, 30, 2500
-        states.time = "night"
+      bedroom.color 0, 0, 30, 2500, 0, (error) ->
+        if !error?
+          log " success!"
+          states.time = "night"
+    else
+      log " failed."
 
 setDaymode = ->
   log "setDaymode"
