@@ -1,4 +1,4 @@
-var LifxClient, client, delay, fadeOff, isPowered, lightOnline, lm, log, moment, setDaymode, setNightmode, states, timeCheck;
+var LifxClient, ambients, app, client, delay, express, fadeOff, getPower, http, isPowered, lightOnline, lm, log, moment, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -8,33 +8,25 @@ moment = require('moment');
 
 client = new LifxClient();
 
+express = require('express');
+
+app = express();
+
+http = require('http').Server(app);
+
 delay = function(sec, func) {
   return setInterval(func, sec * 1000);
 };
 
 states = {
   time: null,
-  light: null
+  light: null,
+  ambient: 0
 };
 
-lightOnline = function() {
-  var bedroom;
-  states.light = true;
-  timeCheck();
-  bedroom = client.light("d073d512170d");
-  if (bedroom) {
-    bedroom.getWifiInfo(function(error, data) {
-      if (error) {
-        return console.error(error);
-      } else {
-        return console.log(data.signal);
-      }
-    });
-  }
-  if (states.time === "night") {
-    return fadeOff();
-  }
-};
+ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
+
+lightOnline = function() {};
 
 log = function(s) {
   var string, t;
@@ -58,15 +50,55 @@ fadeOff = function() {
   }
 };
 
-isPowered = function() {
+turnPower = function(state) {
   var bedroom;
   bedroom = client.light("d073d512170d");
-  return bedroom != null ? bedroom.getPower(function(error, power) {
+  if (bedroom) {
+    return bedroom[state](0, function(error, power) {
+      return console.log("turned " + state);
+    });
+  }
+};
+
+isPowered = function(cb) {
+  var bedroom;
+  bedroom = client.light("d073d512170d");
+  return bedroom.getPower(function(error, power) {
     if (error) {
       console.error(error);
     }
     return power === 1;
-  }) : void 0;
+  });
+};
+
+getPower = function(cb) {
+  var bedroom;
+  bedroom = client.light("d073d512170d");
+  return bedroom.getPower(function(error, power) {
+    if (error) {
+      console.error(error);
+    }
+    return cb(power);
+  });
+};
+
+setColor = function(index) {
+  var bedroom;
+  bedroom = client.light("d073d512170d");
+  if (bedroom) {
+    console.log("set to ambient " + index + " " + ambients[index]);
+    bedroom["color"].apply(bedroom, ambients[index]);
+    return states.ambient = index;
+  }
+};
+
+setNextColor = function() {
+  var next;
+  next = states.ambient + 1;
+  if (next === ambients.length) {
+    next = 0;
+  }
+  return setColor(next);
 };
 
 setNightmode = function() {
@@ -138,6 +170,29 @@ client.on('light-online', function(light) {
 client.init();
 
 log("Started");
+
+app.get('/esp/:action', function(req, res) {
+  switch (req.params.action) {
+    case "click":
+      getPower(function(power) {
+        var state;
+        state = power ? "off" : "on";
+        return turnPower(state);
+      });
+      break;
+    case "long":
+      setNextColor();
+      break;
+    case "double":
+      turnPower("on");
+      fadeOff();
+  }
+  return res.send("Hello ESP, got " + req.params.action);
+});
+
+http.listen(3000, function() {
+  return console.log('listening on *:3000');
+});
 
 
 /*
