@@ -20,9 +20,11 @@ const int sleepTimeS = 20;
 
 OneButton button(0, true);
 
-
+IPAddress localIP(192, 168, 0, 14);
+IPAddress gatewayIP(192, 168, 0, 100);
+IPAddress subnetIP(255, 255, 255, 0);
 IPAddress serverIP(192, 168, 0, 10);
-
+const int httpPort = 3000;
 
 void setup() {
   Serial.begin(115200);
@@ -44,14 +46,14 @@ void loop() {
 }
 
 void sendRequest(String state) {
-  WiFi.mode(WIFI_STA);
+
   connectWiFi();
   Serial.print("connecting to ");
   Serial.println(serverIP);
 
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
-  const int httpPort = 3000;
+  
   if (!client.connect(serverIP, httpPort)) {
     Serial.println("connection failed");
     return;
@@ -69,13 +71,12 @@ void sendRequest(String state) {
                "Connection: close\r\n\r\n");
   delay(10);
 
-  // Read all the lines of the reply from server and print them to Serial
   while (client.available()) {
     String line = client.readStringUntil('\r');
     Serial.print(line);
   }
 
-  Serial.println();
+  
   Serial.println("closing connection");
   WiFi.disconnect();
 }
@@ -85,9 +86,10 @@ void connectWiFi() {
   Serial.println(ssid);
 
   WiFi.begin(ssid, password);
-
+  WiFi.config(localIP, gatewayIP, subnetIP); // indeed AFTER begin!
+ 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(250);
     Serial.print(".");
   }
 
