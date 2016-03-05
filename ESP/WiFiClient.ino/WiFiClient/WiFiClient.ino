@@ -1,8 +1,7 @@
 /*
  *  This sketch sends /esp/[click|double|long] GET requests to the
  *
- *  You need to get streamId and privateKey at data.sparkfun.com and paste them
- *  below. Or just customize this script to talk to other HTTP servers.
+ *  Sleep: https://github.com/esp8266/Arduino/issues/1381
  *
  */
 
@@ -16,7 +15,7 @@ extern "C" {
 
 const char* ssid     = "TomTom2.4";
 const char* password = "qCkdmFCQ";
-const int sleepTimeS = 20;
+const int sleepTimeS = 0;
 
 OneButton button(0, true);
 
@@ -27,8 +26,10 @@ IPAddress serverIP(192, 168, 0, 10);
 const int httpPort = 3000;
 
 void setup() {
+  
   Serial.begin(115200);
   delay(10);
+  Serial.println("woke up");
 
   button.setClickTicks(400);
   button.setPressTicks(700);
@@ -37,7 +38,7 @@ void setup() {
   button.attachLongPressStop(longPress);
 
   //sendUDPRequest();
-  //ESP.deepSleep(sleepTimeS * 1000000);//WAKE_RF_DEFAULT https://github.com/sandeepmistry/esp8266-Arduino/blob/master/esp8266com/esp8266/cores/esp8266/Esp.h
+  ESP.deepSleep(sleepTimeS * 1000000);//WAKE_RF_DEFAULT https://github.com/sandeepmistry/esp8266-Arduino/blob/master/esp8266com/esp8266/cores/esp8266/Esp.h
 }
 
 void loop() {
@@ -86,7 +87,7 @@ void connectWiFi() {
   Serial.println(ssid);
 
   WiFi.begin(ssid, password);
-  WiFi.config(localIP, gatewayIP, subnetIP); // indeed AFTER begin!
+  WiFi.config(localIP, gatewayIP, subnetIP); // indeed AFTER begin! between 700ms to 1s faster connect
  
   while (WiFi.status() != WL_CONNECTED) {
     delay(250);

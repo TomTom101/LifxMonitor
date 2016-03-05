@@ -53,11 +53,11 @@ public:
   bool isLongPressed();
 
 private:
-  int _pin;        // hardware pin number. 
+  int _pin;        // hardware pin number.
   int _clickTicks; // number of ticks that have to pass by before a click is detected
   int _pressTicks; // number of ticks that have to pass by before a long button press is detected
   const int _debounceTicks = 50; // number of ticks for debounce times.
-  
+
   int _buttonReleased;
   int _buttonPressed;
 
@@ -78,5 +78,3 @@ private:
 };
 
 #endif
-
-

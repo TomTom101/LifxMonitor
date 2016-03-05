@@ -19,7 +19,7 @@ OneButton::OneButton(int pin, int activeLow)
 
   _clickTicks = 600;        // number of millisec that have to pass by before a click is detected.
   _pressTicks = 1000;       // number of millisec that have to pass by before a long button press is detected.
- 
+
   _state = 0; // starting with state 0: waiting for button to be pressed
   _isLongPressed = false;  // Keep track of long press state
 
@@ -45,7 +45,7 @@ OneButton::OneButton(int pin, int activeLow)
 
 
 // explicitly set the number of millisec that have to pass by before a click is detected.
-void OneButton::setClickTicks(int ticks) { 
+void OneButton::setClickTicks(int ticks) {
   _clickTicks = ticks;
 } // setClickTicks
 
@@ -71,7 +71,7 @@ void OneButton::attachDoubleClick(callbackFunction newFunction)
 
 
 // save function for press event
-// DEPRECATED, is replaced by attachLongPressStart, attachLongPressStop, attachDuringLongPress, 
+// DEPRECATED, is replaced by attachLongPressStart, attachLongPressStop, attachDuringLongPress,
 void OneButton::attachPress(callbackFunction newFunction)
 {
   _pressFunc = newFunction;
@@ -102,7 +102,7 @@ bool OneButton::isLongPressed(){
 
 void OneButton::tick(void)
 {
-  // Detect the input information 
+  // Detect the input information
   int buttonLevel = digitalRead(_pin); // current button signal.
   unsigned long now = millis(); // current (relative) time in msecs.
 
@@ -111,6 +111,7 @@ void OneButton::tick(void)
     if (buttonLevel == _buttonPressed) {
       _state = 1; // step to state 1
       _startTime = now; // remember starting time
+      if (_pressFunc) _pressFunc();
     } // if
 
   } else if (_state == 1) { // waiting for menu pin being released.
@@ -129,7 +130,7 @@ void OneButton::tick(void)
 	  if (_longPressStartFunc) _longPressStartFunc();
 	  if (_duringLongPressFunc) _duringLongPressFunc();
       _state = 6; // step to state 6
-      
+
     } else {
       // wait. Stay in this state.
     } // if
@@ -160,11 +161,10 @@ void OneButton::tick(void)
 	  // button is being long pressed
 	  _isLongPressed = true; // Keep track of long press state
 	  if (_duringLongPressFunc) _duringLongPressFunc();
-    } // if  
+    } // if
 
-  } // if  
+  } // if
 } // OneButton.tick()
 
 
 // end.
-
