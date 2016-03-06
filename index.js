@@ -74,12 +74,15 @@ isPowered = function(cb) {
 getPower = function(cb) {
   var bedroom;
   bedroom = client.light("d073d512170d");
-  return bedroom.getPower(function(error, power) {
-    if (error) {
-      console.error(error);
-    }
-    return cb(power);
-  });
+  if (bedroom) {
+    bedroom.getPower(function(error, power) {
+      if (error) {
+        console.error(error);
+      }
+      return cb(power);
+    });
+  }
+  return cb(0);
 };
 
 setColor = function(index) {
@@ -173,19 +176,22 @@ log("Started");
 
 app.get('/esp/:action', function(req, res) {
   switch (req.params.action) {
-    case "click":
+    case "1":
       getPower(function(power) {
         var state;
         state = power ? "off" : "on";
         return turnPower(state);
       });
       break;
-    case "long":
-      setNextColor();
-      break;
-    case "double":
+    case "2":
       turnPower("on");
       fadeOff();
+      break;
+    case "3":
+      setNextColor();
+      break;
+    default:
+      console.log("unknown action " + req.params.action);
   }
   return res.send("Hello ESP, got " + req.params.action);
 });

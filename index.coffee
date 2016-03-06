@@ -63,10 +63,12 @@ isPowered = (cb) ->
 
 getPower = (cb) ->
     bedroom = client.light "d073d512170d"
-    bedroom.getPower (error, power) ->
-      if error
-        console.error error
-      cb(power)
+    if bedroom
+      bedroom.getPower (error, power) ->
+        if error
+          console.error error
+        cb power
+    cb 0
 
 setColor = (index) ->
   bedroom = client.light "d073d512170d"
@@ -137,15 +139,17 @@ log "Started"
 app
   .get '/esp/:action', (req, res) ->
     switch req.params.action
-      when "click"
+      when "1"
         getPower (power)->
           state = if power then "off" else "on"
           turnPower state
-      when "long"
+      when "2"
+            turnPower "on"
+            fadeOff()
+      when "3"
         setNextColor()
-      when "double"
-        turnPower "on"
-        fadeOff()
+      else
+        console.log "unknown action #{req.params.action}"
 
     res.send "Hello ESP, got #{req.params.action}"
 

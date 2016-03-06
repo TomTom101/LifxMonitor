@@ -1,3 +1,5 @@
+
+
 /*
  *  This sketch sends /esp/[click|double|long] GET requests to the
  *
@@ -8,67 +10,118 @@
  *
  */
 
-//#include <SoftwareSerial.h>
+#include <TinyWireS.h>
 #include "OneButton.h"
+#include <avr/sleep.h>
+
+#define I2C_SLAVE_ADDRESS 0x26 // A = 10 // the 7-bit address (remember to change this when adapting this example)
 
 const int wakePin = 4;
 const int buttonPin = 3;
+const int ledPin = 1;
 OneButton button(buttonPin, true);
+unsigned long lastReset = 0;
+volatile byte buttonStatus = 0x0;
 
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
 
 void setup() {
   //SoftwareSerial.begin(115200);
   pinMode(wakePin, OUTPUT);
-  digitalWrite(wakePin, HIGH);
-  delay(100);
   digitalWrite(wakePin, LOW);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+  blink(1, 1000);
+
   button.setClickTicks(400);
   button.setPressTicks(700);
-  button.attachPress(buttonPress);
+  button.attachPress(wakeUpESP);
   button.attachClick(singleClick);
   button.attachDoubleClick(doubleClick);
   button.attachLongPressStop(longPress);
+
+  TinyWireS.begin(I2C_SLAVE_ADDRESS);
+  TinyWireS.onRequest(requestEvent);
+  TinyWireS.onReceive(receiveEvent);
 }
 
 void loop() {
+  //system_sleep();
   button.tick();
   delay(5);
 }
 
+void receiveEvent(uint8_t b) {
+  blink(3);
+}
+
+/**
+ * This is called for each read request we receive, never put more than one byte of data (with TinyWireS.send) to the
+ * send-buffer when using this callback
+ */
+void requestEvent() {
+  TinyWireS.send(buttonStatus);
+  //blink(2);
+}
+
+void wakeUpESP() {
+  if (millis() - lastReset > 5000) {
+    digitalWrite(wakePin, HIGH);
+    delay(10);
+    digitalWrite(wakePin, LOW);
+    lastReset = millis();
+  }
+}
+
 void sendRequest(String state) {
-  //wakeUpESP();
 
   Serial.print("got " + state);
 
 }
 
-void wakeUpESP(int mode) {
-  for (int i = mode; i > 0; i--) {
-    digitalWrite(wakePin, HIGH);
-    delay(100);
-    digitalWrite(wakePin, LOW);
-    delay(250);
+void blink(uint8_t times, uint16_t duration) {
+  while (times--) {
+    digitalWrite(ledPin, HIGH);
+    delay(duration);
+    digitalWrite(ledPin, LOW);
+    delay(duration * 2);
   }
 }
-
-// Button went down, short burst
-void buttonPress() {
-  digitalWrite(wakePin, HIGH);
-  delay(40);
-  digitalWrite(wakePin, LOW);
+void blink(uint8_t times) {
+  blink(times, 50);
 }
+
 void singleClick() {
-  sendRequest("click");
-  wakeUpESP(1);
+  blink(1);
+  buttonStatus = 1;
 }
 
 void doubleClick() {
-  sendRequest("double");
-  wakeUpESP(2);
+  blink(2);
+  buttonStatus = 2;
 }
 
 void longPress() {
-  sendRequest("long");
-  wakeUpESP(3);
+  blink(3);
+  buttonStatus = 3;
 }
 
+void system_sleep() {
+
+  cbi(ADCSRA, ADEN);                   // switch Analog to Digitalconverter OFF
+
+  set_sleep_mode(SLEEP_MODE_IDLE); // sleep mode is set here
+  sleep_enable();
+
+  sleep_mode();                        // System actually sleeps here
+
+  sleep_disable();                     // System continues execution here when watchdog timed out
+
+  //sbi(ADCSRA,ADEN);                    // switch Analog to Digitalconverter ON
+
+}
