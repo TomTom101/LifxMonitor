@@ -196,8 +196,8 @@ app.get('/esp/:action', function(req, res) {
   return res.send("Hello ESP, got " + req.params.action);
 });
 
-http.listen(3000, function() {
-  return console.log('listening on *:3000');
+http.listen(3002, function() {
+  return console.log('listening on *:3002');
 });
 
 
