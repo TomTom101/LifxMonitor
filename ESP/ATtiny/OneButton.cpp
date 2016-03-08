@@ -118,7 +118,7 @@ void OneButton::tick(void)
 
     if ((buttonLevel == _buttonReleased) && ((unsigned long)(now - _startTime) < _debounceTicks)) {
       // button was released to quickly so I assume some debouncing.
-	  // go back to state 0 without calling a function.
+      // go back to state 0 without calling a function.
       _state = 0;
 
     } else if (buttonLevel == _buttonReleased) {
@@ -126,9 +126,9 @@ void OneButton::tick(void)
 
     } else if ((buttonLevel == _buttonPressed) && ((unsigned long)(now - _startTime) > _pressTicks)) {
       _isLongPressed = true;  // Keep track of long press state
-      if (_pressFunc) _pressFunc();
-	  if (_longPressStartFunc) _longPressStartFunc();
-	  if (_duringLongPressFunc) _duringLongPressFunc();
+
+      if (_longPressStartFunc) _longPressStartFunc();
+      if (_duringLongPressFunc) _duringLongPressFunc();
       _state = 6; // step to state 6
 
     } else {
@@ -154,13 +154,13 @@ void OneButton::tick(void)
 
   } else if (_state == 6) { // waiting for menu pin being release after long press.
     if (buttonLevel == _buttonReleased) {
-	  _isLongPressed = false;  // Keep track of long press state
-	  if(_longPressStopFunc) _longPressStopFunc();
+      _isLongPressed = false;  // Keep track of long press state
+      if (_longPressStopFunc) _longPressStopFunc();
       _state = 0; // restart.
     } else {
-	  // button is being long pressed
-	  _isLongPressed = true; // Keep track of long press state
-	  if (_duringLongPressFunc) _duringLongPressFunc();
+      // button is being long pressed
+      _isLongPressed = true; // Keep track of long press state
+      if (_duringLongPressFunc) _duringLongPressFunc();
     } // if
 
   } // if

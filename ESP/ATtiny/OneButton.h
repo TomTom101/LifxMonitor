@@ -50,6 +50,7 @@ public:
 
   // call this function every some milliseconds for handling button events.
   void tick(void);
+  void tick(uint8_t);
   bool isLongPressed();
 
 private:
@@ -73,7 +74,7 @@ private:
 
   // These variables that hold information across the upcoming tick calls.
   // They are initialized once on program start and are updated every time the tick function is called.
-  int _state;
+  uint8_t _state;
   unsigned long _startTime; // will be set in state 1
 };
 

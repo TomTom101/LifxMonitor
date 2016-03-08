@@ -11,17 +11,23 @@
  */
 
 #include <TinyWireS.h>
-#include "OneButton.h"
+#include "./OneButton.h"
 #include <avr/sleep.h>
+#include <avr/interrupt.h>
 
 #define I2C_SLAVE_ADDRESS 0x26 // A = 10 // the 7-bit address (remember to change this when adapting this example)
 
 const int wakePin = 4;
 const int buttonPin = 3;
 const int ledPin = 1;
-OneButton button(buttonPin, true);
+const unsigned int clickTicks = 350;
+const unsigned int pressTicks = 600;
+
 unsigned long lastReset = 0;
-volatile byte buttonStatus = 0x0;
+unsigned long lastSleep = 0;
+byte buttonStatus = 0x0;
+
+OneButton button(buttonPin, true);
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -31,19 +37,18 @@ volatile byte buttonStatus = 0x0;
 #endif
 
 void setup() {
-  //SoftwareSerial.begin(115200);
   pinMode(wakePin, OUTPUT);
   digitalWrite(wakePin, LOW);
+
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
-  blink(1, 1000);
 
-  button.setClickTicks(400);
-  button.setPressTicks(700);
-  button.attachPress(wakeUpESP);
+  button.setClickTicks(clickTicks);
+  button.setPressTicks(pressTicks);
+  //button.attachPress(wakeUpESP);
   button.attachClick(singleClick);
   button.attachDoubleClick(doubleClick);
-  button.attachLongPressStop(longPress);
+  button.attachLongPressStart(longPress);
 
   TinyWireS.begin(I2C_SLAVE_ADDRESS);
   TinyWireS.onRequest(requestEvent);
@@ -51,13 +56,19 @@ void setup() {
 }
 
 void loop() {
-  //system_sleep();
-  button.tick();
-  delay(5);
+  system_sleep();
+  wakeUpESP();
+
+  while (millis() - lastSleep < pressTicks + 100) {
+    button.tick();
+    delay(20);
+  }
+  
+  lastSleep = millis();
 }
 
 void receiveEvent(uint8_t b) {
-  blink(3);
+  blink(1, 25);
 }
 
 /**
@@ -66,7 +77,6 @@ void receiveEvent(uint8_t b) {
  */
 void requestEvent() {
   TinyWireS.send(buttonStatus);
-  //blink(2);
 }
 
 void wakeUpESP() {
@@ -89,11 +99,13 @@ void blink(uint8_t times, uint16_t duration) {
     digitalWrite(ledPin, HIGH);
     delay(duration);
     digitalWrite(ledPin, LOW);
-    delay(duration * 2);
+    if (times > 0) {
+      delay(duration * 2);
+    }
   }
 }
 void blink(uint8_t times) {
-  blink(times, 50);
+  blink(times, 75);
 }
 
 void singleClick() {
@@ -102,26 +114,36 @@ void singleClick() {
 }
 
 void doubleClick() {
-  blink(2);
+  blink(2, 100);
   buttonStatus = 2;
 }
 
 void longPress() {
-  blink(3);
+  blink(1, 500);
   buttonStatus = 3;
 }
 
 void system_sleep() {
 
-  cbi(ADCSRA, ADEN);                   // switch Analog to Digitalconverter OFF
+  GIMSK |= _BV(PCIE);                     // Enable Pin Change Interrupts
+  PCMSK |= _BV(PCINT3);                   // Use PB3 as interrupt pin
+  ADCSRA &= ~_BV(ADEN);                   // ADC off
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);    // replaces above statement
 
-  set_sleep_mode(SLEEP_MODE_IDLE); // sleep mode is set here
-  sleep_enable();
+  sleep_enable();                         // Sets the Sleep Enable bit in the MCUCR Register (SE BIT)
+  sei();                                  // Enable interrupts
+  sleep_cpu();                            // sleep
 
-  sleep_mode();                        // System actually sleeps here
+  cli();                                  // Disable interrupts
+  PCMSK &= ~_BV(PCINT3);                  // Turn off PB3 as interrupt pin
+  sleep_disable();                        // Clear SE bit
+  ADCSRA |= _BV(ADEN);                    // ADC on
 
-  sleep_disable();                     // System continues execution here when watchdog timed out
+  sei();                                  // Enable interrupts
+  delay(10);
+} // sleep
 
-  //sbi(ADCSRA,ADEN);                    // switch Analog to Digitalconverter ON
 
-}
+
+// Pin change interrupt
+ISR(PCINT0_vect) { }
