@@ -8,26 +8,13 @@
  *  @1MHz avrdude -p attiny85 -c usbasp -P usb -U lfuse:w:0x62:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
  *  @8MHz avrdude -p attiny85 -c usbasp -P usb -U lfuse:w:0xe2:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
  *
+ *  Bug: Erster Klick nach Longpress wird immer ignoriert wenn attachLongPressStart() genutzt wird. Stop() geht
  */
 
 #include <TinyWireS.h>
 #include "./OneButton.h"
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
-
-#define I2C_SLAVE_ADDRESS 0x26 // A = 10 // the 7-bit address (remember to change this when adapting this example)
-
-const int wakePin = 4;
-const int buttonPin = 3;
-const int ledPin = 1;
-const unsigned int clickTicks = 350;
-const unsigned int pressTicks = 600;
-
-unsigned long lastReset = 0;
-unsigned long lastSleep = 0;
-byte buttonStatus = 0x0;
-
-OneButton button(buttonPin, true);
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -36,34 +23,51 @@ OneButton button(buttonPin, true);
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
-void setup() {
-  pinMode(wakePin, OUTPUT);
-  digitalWrite(wakePin, LOW);
+#define I2C_SLAVE_ADDRESS 0x26 // A = 10 // the 7-bit address (remember to change this when adapting this example)
+#define WAKE_PIN 4
+#define BUTTON_PIN 3
+#define LED_PIN 1
 
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+bool allowWakeup = true;
+
+const unsigned int clickTicks = 350;
+const unsigned int pressTicks = 600;
+volatile unsigned long lastReset = 0;
+unsigned long lastSleep = 0;
+byte buttonStatus = 0x0;
+
+OneButton button(BUTTON_PIN, true);
+
+void setup() {
+
+  pinMode(WAKE_PIN, OUTPUT);
+  digitalWrite(WAKE_PIN, LOW);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 
   button.setClickTicks(clickTicks);
   button.setPressTicks(pressTicks);
-  //button.attachPress(wakeUpESP);
+  button.attachPress(wakeUpESP);
   button.attachClick(singleClick);
   button.attachDoubleClick(doubleClick);
-  button.attachLongPressStart(longPress);
+  button.attachLongPressStop(longPress);
 
   TinyWireS.begin(I2C_SLAVE_ADDRESS);
   TinyWireS.onRequest(requestEvent);
   TinyWireS.onReceive(receiveEvent);
+  tws_delay(50);
 }
 
 void loop() {
+  //blink(3, 100);
   system_sleep();
-  wakeUpESP();
+  //wakeUpESP();
 
   while (millis() - lastSleep < pressTicks + 100) {
     button.tick();
-    delay(20);
+    tws_delay(20);
   }
-  
+
   lastSleep = millis();
 }
 
@@ -77,14 +81,17 @@ void receiveEvent(uint8_t b) {
  */
 void requestEvent() {
   TinyWireS.send(buttonStatus);
+  allowWakeup = true;
 }
 
 void wakeUpESP() {
-  if (millis() - lastReset > 5000) {
-    digitalWrite(wakePin, HIGH);
-    delay(10);
-    digitalWrite(wakePin, LOW);
-    lastReset = millis();
+  
+  if (allowWakeup) {
+
+    digitalWrite(WAKE_PIN, HIGH);
+    tws_delay(20);
+    digitalWrite(WAKE_PIN, LOW);
+    allowWakeup = false;
   }
 }
 
@@ -96,11 +103,11 @@ void sendRequest(String state) {
 
 void blink(uint8_t times, uint16_t duration) {
   while (times--) {
-    digitalWrite(ledPin, HIGH);
-    delay(duration);
-    digitalWrite(ledPin, LOW);
+    digitalWrite(LED_PIN, HIGH);
+    tws_delay(duration);
+    digitalWrite(LED_PIN, LOW);
     if (times > 0) {
-      delay(duration * 2);
+      tws_delay(duration * 2);
     }
   }
 }
@@ -140,7 +147,7 @@ void system_sleep() {
   ADCSRA |= _BV(ADEN);                    // ADC on
 
   sei();                                  // Enable interrupts
-  delay(10);
+  tws_delay(10);
 } // sleep
 
 
