@@ -26,7 +26,13 @@ states = {
 
 ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
 
-lightOnline = function() {};
+lightOnline = function() {
+  states.light = true;
+  timeCheck();
+  if (states.time === "night") {
+    return fadeOff();
+  }
+};
 
 log = function(s) {
   var string, t;
