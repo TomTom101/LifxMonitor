@@ -62,7 +62,6 @@ getPower = (cb) ->
         if error
           console.error error
         cb power
-    cb 0
 
 setColor = (index) ->
   bedroom = client.light "d073d512170d"
@@ -135,7 +134,7 @@ app
     switch req.params.action
       when "1"
         getPower (power)->
-          state = if power then "off" else "on"
+          state = if power > 0 then "off" else "on"
           turnPower state
       when "2"
             turnPower "on"

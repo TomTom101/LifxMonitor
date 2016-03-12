@@ -81,14 +81,13 @@ getPower = function(cb) {
   var bedroom;
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    bedroom.getPower(function(error, power) {
+    return bedroom.getPower(function(error, power) {
       if (error) {
         console.error(error);
       }
       return cb(power);
     });
   }
-  return cb(0);
 };
 
 setColor = function(index) {
@@ -185,7 +184,7 @@ app.get('/esp/:action', function(req, res) {
     case "1":
       getPower(function(power) {
         var state;
-        state = power ? "off" : "on";
+        state = power > 0 ? "off" : "on";
         return turnPower(state);
       });
       break;
