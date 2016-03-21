@@ -2,7 +2,7 @@
  *  This sketch sends /esp/[click|double|long] GET requests to the
  *
  *  Sleep: https://github.com/esp8266/Arduino/issues/1381
- *
+ *  pinputs http://daflabs.com/media/catalog/product/cache/1/image/1200x/040ec09b1e35df139433887a97daa66f/e/s/esp12pinoutfront.jpg
  */
 
 #include <ESP8266WiFi.h>
@@ -21,20 +21,32 @@ const char* password = "qCkdmFCQ";
 IPAddress localIP(192, 168, 0, 14);
 IPAddress gatewayIP(192, 168, 0, 100);
 IPAddress subnetIP(255, 255, 255, 0);
-IPAddress serverIP(192, 168, 0, 10);
-const int httpPort = 3000;
+IPAddress serverIP(192, 168, 0, 18);
+const int httpPort = 3002;
 byte error;
+
 
 void setup() {
   Wire.begin();
   Serial.begin(115200);
   delay(10);
-  Serial.println("Woke up");
+  Serial.println("Setup up!");
   initializeI2C();
   connectWiFi();
 
   sendRequest(requestButtonState());
+}
 
+void loop() {
+
+  //delay(1000);
+  deep_sleep();
+  Serial.print("Woke from light sleep");
+
+  //Serial.println(requestData());
+}
+
+void deep_sleep() {
   ESP.deepSleep(0);//WAKE_RF_DEFAULT https://github.com/sandeepmistry/esp8266-Arduino/blob/master/esp8266com/esp8266/cores/esp8266/Esp.h
 }
 
@@ -49,14 +61,11 @@ void initializeI2C() {
   Wire.beginTransmission(I2C_SLAVE_ADDRESS);
   error = Wire.endTransmission();
   if (error == 0)  {
-    Serial.print("I2C device found");
+    Serial.println("I2C device found");
   } else {
-    Serial.print("Error ");
+    Serial.print("I2C error ");
     Serial.println(error);
   }
-}
-void loop() {
-  // Tell Attiny we're ready to receive a command
 }
 
 
@@ -107,6 +116,5 @@ void connectWiFi() {
   Serial.print("WiFi connected with IP: ");
   Serial.println(WiFi.localIP());
 }
-
 
 

@@ -24,9 +24,10 @@
 #endif
 
 #define I2C_SLAVE_ADDRESS 0x26 // A = 10 // the 7-bit address (remember to change this when adapting this example)
-#define WAKE_PIN 4
-#define BUTTON_PIN 3
-#define LED_PIN 1
+#define DEEP_WAKE_PIN 4
+#define BUTTON_PIN 1 // NEues Board auf 1
+#define LED_PIN 3 //  NEues Board auf 3
+//#define LIGHT_WAKE_PIN 1
 
 bool allowWakeup = true;
 
@@ -40,9 +41,11 @@ OneButton button(BUTTON_PIN, true);
 
 void setup() {
 
-  pinMode(WAKE_PIN, OUTPUT);
-  digitalWrite(WAKE_PIN, LOW);
+  pinMode(DEEP_WAKE_PIN, OUTPUT);
+  digitalWrite(DEEP_WAKE_PIN, LOW);
   pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
+  delay(500);
   digitalWrite(LED_PIN, LOW);
 
   button.setClickTicks(clickTicks);
@@ -85,12 +88,12 @@ void requestEvent() {
 }
 
 void wakeUpESP() {
-  
+
   if (allowWakeup) {
 
-    digitalWrite(WAKE_PIN, HIGH);
+    digitalWrite(DEEP_WAKE_PIN, HIGH);
     tws_delay(20);
-    digitalWrite(WAKE_PIN, LOW);
+    digitalWrite(DEEP_WAKE_PIN, LOW);
     allowWakeup = false;
   }
 }
@@ -133,7 +136,7 @@ void longPress() {
 void system_sleep() {
 
   GIMSK |= _BV(PCIE);                     // Enable Pin Change Interrupts
-  PCMSK |= _BV(PCINT3);                   // Use PB3 as interrupt pin
+  PCMSK |= _BV(PCINT1);                   // Use PB3 as interrupt pin
   ADCSRA &= ~_BV(ADEN);                   // ADC off
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);    // replaces above statement
 
@@ -142,7 +145,7 @@ void system_sleep() {
   sleep_cpu();                            // sleep
 
   cli();                                  // Disable interrupts
-  PCMSK &= ~_BV(PCINT3);                  // Turn off PB3 as interrupt pin
+  PCMSK &= ~_BV(PCINT1);                  // Turn off PB3 as interrupt pin
   sleep_disable();                        // Clear SE bit
   ADCSRA |= _BV(ADEN);                    // ADC on
 
