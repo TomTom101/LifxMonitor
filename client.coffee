@@ -1,6 +1,11 @@
 LifxClient  = require('node-lifx').Client
 client      = new LifxClient()
 client.init()
+
+client.on 'light-new', (light) ->
+  console.log "New light"
+  console.log light
+
 console.log client.lights()
 bedroom = client.light "d073d512170d"
 if bedroom

@@ -6,6 +6,11 @@ client = new LifxClient();
 
 client.init();
 
+client.on('light-new', function(light) {
+  console.log("New light");
+  return console.log(light);
+});
+
 console.log(client.lights());
 
 bedroom = client.light("d073d512170d");
