@@ -118,6 +118,8 @@ setNightmode = function() {
       if (error == null) {
         log(" success!");
         return states.time = "night";
+      } else {
+        return log("failed with " + error + ".");
       }
     });
   } else {

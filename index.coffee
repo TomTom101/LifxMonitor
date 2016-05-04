@@ -84,6 +84,8 @@ setNightmode = ->
         if !error?
           log " success!"
           states.time = "night"
+        else
+          log "failed with #{error}." 
     else
       log " failed."
 
