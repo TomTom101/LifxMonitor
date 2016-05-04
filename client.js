@@ -8,7 +8,9 @@ client.init();
 
 client.on('light-new', function(light) {
   console.log("New light");
-  return console.log(light);
+  return light.getState(function(err, info) {
+    return console.log(info);
+  });
 });
 
 console.log(client.lights());

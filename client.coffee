@@ -4,7 +4,9 @@ client.init()
 
 client.on 'light-new', (light) ->
   console.log "New light"
-  console.log light
+  light.getState (err, info) ->
+    console.log info
+
 
 console.log client.lights()
 bedroom = client.light "d073d512170d"
