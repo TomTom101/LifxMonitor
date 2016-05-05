@@ -144,12 +144,12 @@ setDaymode = function() {
 timeCheck = function() {
   switch (states.time) {
     case 'day':
-      if (lm.isLate()) {
+      if (lm.isLate() && states.light) {
         return setNightmode();
       }
       break;
     case 'night':
-      if (!lm.isLate()) {
+      if (!lm.isLate() && states.light) {
         return setDaymode();
       }
       break;

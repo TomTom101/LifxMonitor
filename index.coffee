@@ -85,7 +85,7 @@ setNightmode = ->
           log " success!"
           states.time = "night"
         else
-          log "failed with #{error}." 
+          log "failed with #{error}."
     else
       log " failed."
 
@@ -102,11 +102,11 @@ setDaymode = ->
 timeCheck = ->
     switch states.time
         when 'day'
-            if lm.isLate()
+            if lm.isLate() and states.light
                 setNightmode()
 
         when 'night'
-            if not lm.isLate()
+            if not lm.isLate() and states.light
                 setDaymode()
         else
             states.time = if lm.isLate() then "night" else "day"
