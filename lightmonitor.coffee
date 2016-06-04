@@ -20,7 +20,7 @@ LightMonitor =
     isDay: ->
       times = suncalc.getTimes moment(), @position.lat, @position.long
       moment()
-      .isBetween times.sunriseEnd, times.nauticalDusk 
+      .isBetween times.sunriseEnd, times.dusk 
 
 
     clockAngle: (h, m) ->

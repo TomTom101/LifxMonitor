@@ -25,7 +25,7 @@ LightMonitor = {
   isDay: function() {
     var times;
     times = suncalc.getTimes(moment(), this.position.lat, this.position.long);
-    return moment().isBetween(times.sunriseEnd, times.nauticalDusk);
+    return moment().isBetween(times.sunriseEnd, times.dusk);
   },
   clockAngle: function(h, m) {
     m = moment().hours(h).minutes(m);
