@@ -5,7 +5,12 @@ client      = new LifxClient()
 express     = require 'express'
 app         = express()
 http        = require('http').Server(app)
+fliclib     = require("./fliclibNodeJs")
+FlicClient  = fliclib.FlicClient
+FlicChannel = fliclib.FlicConnectionChannel
+FlicScanner = fliclib.FlicScanner
 
+button = new FlicClient("localhost", 5551)
 delay = (sec, func) -> setInterval func, sec * 1000
 
 states =
@@ -18,6 +23,17 @@ ambients = [
   [0, 0, 30, 2500]
 ]
 
+buttonStateChange = (clickType, wasQueued, timeDiff) ->
+  switch clickType
+    when "buttonDown" then togglePower "on"
+  console.log "#{bdAddr}  #{clickType}"  + (wasQueued ? "wasQueued" : "notQueued") + " #{timeDiff} seconds ago"
+
+listenToButton = (bdAddr) ->
+	cc = new FlicChannel(bdAddr)
+	button.addConnectionChannel(cc)
+	cc.on "buttonUpOrDown", buttonStateChange
+	cc.on "connectionStatusChanged", (connectionStatus, disconnectReason) ->
+		console.log(bdAddr + " " + connectionStatus + (connectionStatus == "Disconnected" ? " " + disconnectReason : ""))
 
 lightOnline = ->
     states.light = on
@@ -126,6 +142,25 @@ client.on 'light-offline', (light) ->
 client.on 'light-online', (light) ->
     log "Back #{light.id}"
     lightOnline()
+
+button.once "ready", () ->
+	console.log("Connected to daemon!")
+	client.getInfo (info) ->
+		info.bdAddrOfVerifiedButtons.forEach (bdAddr) ->
+			listenToButton(bdAddr)
+
+button.on "bluetoothControllerStateChange", (state) ->
+	console.log("Bluetooth controller state change: " + state)
+
+button.on "newVerifiedButton", (bdAddr) ->
+	console.log("A new button was added: " + bdAddr)
+	listenToButton(bdAddr)
+
+button.on "error", (error) ->
+	console.log("Daemon connection error: " + error)
+
+button.on "close", (hadError) ->
+	console.log("Connection to daemon is now closed")
 
 client.init()
 

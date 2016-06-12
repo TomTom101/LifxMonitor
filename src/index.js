@@ -1,4 +1,4 @@
-var LifxClient, ambients, app, client, delay, express, fadeOff, getPower, http, isPowered, lightOnline, lm, log, moment, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, turnPower;
+var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, button, buttonStateChange, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, moment, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -14,6 +14,16 @@ app = express();
 
 http = require('http').Server(app);
 
+fliclib = require("./fliclibNodeJs");
+
+FlicClient = fliclib.FlicClient;
+
+FlicChannel = fliclib.FlicConnectionChannel;
+
+FlicScanner = fliclib.FlicScanner;
+
+button = new FlicClient("localhost", 5551);
+
 delay = function(sec, func) {
   return setInterval(func, sec * 1000);
 };
@@ -25,6 +35,29 @@ states = {
 };
 
 ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
+
+buttonStateChange = function(clickType, wasQueued, timeDiff) {
+  switch (clickType) {
+    case "buttonDown":
+      togglePower("on");
+  }
+  return console.log((bdAddr + "  " + clickType) + (wasQueued != null ? wasQueued : {
+    "wasQueued": "notQueued"
+  }) + (" " + timeDiff + " seconds ago"));
+};
+
+listenToButton = function(bdAddr) {
+  var cc;
+  cc = new FlicChannel(bdAddr);
+  button.addConnectionChannel(cc);
+  cc.on("buttonUpOrDown", buttonStateChange);
+  return cc.on("connectionStatusChanged", function(connectionStatus, disconnectReason) {
+    var ref;
+    return console.log(bdAddr + " " + connectionStatus + ((ref = connectionStatus === "Disconnected") != null ? ref : " " + {
+      disconnectReason: ""
+    }));
+  });
+};
 
 lightOnline = function() {
   states.light = true;
@@ -175,6 +208,32 @@ client.on('light-offline', function(light) {
 client.on('light-online', function(light) {
   log("Back " + light.id);
   return lightOnline();
+});
+
+button.once("ready", function() {
+  console.log("Connected to daemon!");
+  return client.getInfo(function(info) {
+    return info.bdAddrOfVerifiedButtons.forEach(function(bdAddr) {
+      return listenToButton(bdAddr);
+    });
+  });
+});
+
+button.on("bluetoothControllerStateChange", function(state) {
+  return console.log("Bluetooth controller state change: " + state);
+});
+
+button.on("newVerifiedButton", function(bdAddr) {
+  console.log("A new button was added: " + bdAddr);
+  return listenToButton(bdAddr);
+});
+
+button.on("error", function(error) {
+  return console.log("Daemon connection error: " + error);
+});
+
+button.on("close", function(hadError) {
+  return console.log("Connection to daemon is now closed");
 });
 
 client.init();
