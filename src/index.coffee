@@ -24,11 +24,14 @@ ambients = [
   [0, 0, 30, 2500]
 ]
 
+longPress = () ->
+  console.log "Main got longPress reported"
 nClicks = (count) ->
-  console.log "Main got a #{count} clicks reported"
+  console.log "Main got #{count} clicks reported"
 
 btnListener.callbacks =
   nClicks: nClicks
+  longPress: longPress
 
 
 listenToButton = (bdAddr) ->
