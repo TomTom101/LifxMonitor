@@ -6,6 +6,7 @@ express     = require 'express'
 app         = express()
 http        = require('http').Server(app)
 fliclib     = require("./fliclibNodeJs")
+btnListener = require("./ButtonListener")
 FlicClient  = fliclib.FlicClient
 FlicChannel = fliclib.FlicConnectionChannel
 FlicScanner = fliclib.FlicScanner
@@ -23,15 +24,16 @@ ambients = [
   [0, 0, 30, 2500]
 ]
 
-buttonStateChange = (clickType, wasQueued, timeDiff) ->
-  switch clickType
-    when "buttonDown" then togglePower "on"
-  console.log "#{bdAddr}  #{clickType}"  + (wasQueued ? "wasQueued" : "notQueued") + " #{timeDiff} seconds ago"
+singleClick = () ->
+  console.log "Main got a singleClick reported"
+btnListener.callbacks =
+  singleClick: singleClick
+
 
 listenToButton = (bdAddr) ->
 	cc = new FlicChannel(bdAddr)
 	button.addConnectionChannel(cc)
-	cc.on "buttonUpOrDown", buttonStateChange
+	cc.on "buttonUpOrDown", btnListener.listen
 	cc.on "connectionStatusChanged", (connectionStatus, disconnectReason) ->
 		console.log(bdAddr + " " + connectionStatus + (connectionStatus == "Disconnected" ? " " + disconnectReason : ""))
 
@@ -145,7 +147,7 @@ client.on 'light-online', (light) ->
 
 button.once "ready", () ->
 	console.log("Connected to daemon!")
-	client.getInfo (info) ->
+	button.getInfo (info) ->
 		info.bdAddrOfVerifiedButtons.forEach (bdAddr) ->
 			listenToButton(bdAddr)
 
@@ -185,6 +187,7 @@ app
 
 http.listen 3002, ->
   console.log 'listening on *:3002'
+
 
 
 

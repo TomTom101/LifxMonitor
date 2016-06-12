@@ -1,4 +1,4 @@
-var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, button, buttonStateChange, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, moment, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, turnPower;
+var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, moment, setColor, setDaymode, setNextColor, setNightmode, singleClick, states, timeCheck, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -15,6 +15,8 @@ app = express();
 http = require('http').Server(app);
 
 fliclib = require("./fliclibNodeJs");
+
+btnListener = require("./ButtonListener");
 
 FlicClient = fliclib.FlicClient;
 
@@ -36,21 +38,19 @@ states = {
 
 ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
 
-buttonStateChange = function(clickType, wasQueued, timeDiff) {
-  switch (clickType) {
-    case "buttonDown":
-      togglePower("on");
-  }
-  return console.log((bdAddr + "  " + clickType) + (wasQueued != null ? wasQueued : {
-    "wasQueued": "notQueued"
-  }) + (" " + timeDiff + " seconds ago"));
+singleClick = function() {
+  return console.log("Main got a singleClick reported");
+};
+
+btnListener.callbacks = {
+  singleClick: singleClick
 };
 
 listenToButton = function(bdAddr) {
   var cc;
   cc = new FlicChannel(bdAddr);
   button.addConnectionChannel(cc);
-  cc.on("buttonUpOrDown", buttonStateChange);
+  cc.on("buttonUpOrDown", btnListener.listen);
   return cc.on("connectionStatusChanged", function(connectionStatus, disconnectReason) {
     var ref;
     return console.log(bdAddr + " " + connectionStatus + ((ref = connectionStatus === "Disconnected") != null ? ref : " " + {
@@ -212,7 +212,7 @@ client.on('light-online', function(light) {
 
 button.once("ready", function() {
   console.log("Connected to daemon!");
-  return client.getInfo(function(info) {
+  return button.getInfo(function(info) {
     return info.bdAddrOfVerifiedButtons.forEach(function(bdAddr) {
       return listenToButton(bdAddr);
     });

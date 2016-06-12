@@ -1,0 +1,15 @@
+{
+  "uploadOnSave": true,
+  "useAtomicWrites": false,
+  "deleteLocal": false,
+  "hostname": "raspi",
+  "target": "/home/pi/LifxMonitor",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "pi",
+  "keyfile": "/Users/thobra/.ssh/id_rsa",
+  "watch": [],
+  "transport": "scp"
+}
