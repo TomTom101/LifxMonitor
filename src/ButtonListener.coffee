@@ -16,6 +16,10 @@ ButtonListener =
     #console.log "listen #{clickType} #{timeDiff}"
     @[clickType]()
 
+  resetTimeout: (timer) ->
+    if typeof timer is 'object'
+      clearTimeout timer
+
   ButtonDown: () ->
     console.log "ButtonDown #{@clickCounter}"
     if @clickCounter is 0
@@ -25,11 +29,9 @@ ButtonListener =
 
   ButtonUp: () ->
     console.log "ButtonUp #{typeof @longPressTimer}"
-    if typeof @longPressTimer is 'object'
-      clearTimeout @longPressTimer
+    @resetTimeout @longPressTimer
     fn =  @trigger.bind @, 'nClicks', @clickCounter
-    if typeof @nClicksTimer is 'object'
-      clearTimeout @nClicksTimer    
+    @resetTimeout @nClicksTimer    
     @nClicksTimer = delay 100, fn
     #@doubleClickTimer = delay 200, @trigger 'longPress'
     #@trigger 'singleClick'

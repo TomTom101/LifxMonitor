@@ -15,6 +15,11 @@ ButtonListener = {
   listen: function(clickType, wasQueued, timeDiff) {
     return this[clickType]();
   },
+  resetTimeout: function(timer) {
+    if (typeof timer === 'object') {
+      return clearTimeout(timer);
+    }
+  },
   ButtonDown: function() {
     console.log("ButtonDown " + this.clickCounter);
     if (this.clickCounter === 0) {
@@ -25,13 +30,9 @@ ButtonListener = {
   ButtonUp: function() {
     var fn;
     console.log("ButtonUp " + (typeof this.longPressTimer));
-    if (typeof this.longPressTimer === 'object') {
-      clearTimeout(this.longPressTimer);
-    }
+    this.resetTimeout(this.longPressTimer);
     fn = this.trigger.bind(this, 'nClicks', this.clickCounter);
-    if (typeof this.nClicksTimer === 'object') {
-      clearTimeout(this.nClicksTimer);
-    }
+    this.resetTimeout(this.nClicksTimer);
     return this.nClicksTimer = delay(100, fn);
   },
   trigger: function(detectedType, count) {
