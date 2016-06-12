@@ -43,15 +43,44 @@ describe "Init", ->
         done()
 
     btnListener.listen 'ButtonDown'
+    delay 50, btnListener.listen.bind btnListener, 'ButtonUp'
+    delay 100, btnListener.listen.bind btnListener, 'ButtonDown'
+    delay 150, btnListener.listen.bind btnListener, 'ButtonUp'
+
+  it "should detect a triple click", (done) ->
+    btnListener.callbacks =
+      longPress: ->
+        console.log 'cb longPress'
+        assert.fail()
+      nClicks: (count)->
+        console.log "cb nClicks #{count}"
+        expect count
+          .to.equal 3
+        done()
+
+    btnListener.listen 'ButtonDown'
     delay 10, btnListener.listen.bind btnListener, 'ButtonUp'
     delay 20, btnListener.listen.bind btnListener, 'ButtonDown'
     delay 30, btnListener.listen.bind btnListener, 'ButtonUp'
+    delay 40, btnListener.listen.bind btnListener, 'ButtonDown'
+    delay 50, btnListener.listen.bind btnListener, 'ButtonUp'
 
   it "should detect a long press", (done) ->
     btnListener.callbacks =
       longPress: ->
         console.log 'cb longPress'
         done()
+      nClicks: (count)->
+        console.log "cb nClicks #{count}"
+        assert.fail()
+
+    btnListener.listen 'ButtonDown'
+    delay 800, btnListener.listen.bind btnListener, 'ButtonUp'
+
+  it "should not trigger a click after a long press", () ->
+    btnListener.callbacks =
+      longPress: ->
+        console.log 'cb longPress'
       nClicks: (count)->
         console.log "cb nClicks #{count}"
         assert.fail()

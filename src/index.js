@@ -1,4 +1,4 @@
-var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, moment, setColor, setDaymode, setNextColor, setNightmode, singleClick, states, timeCheck, turnPower;
+var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -38,19 +38,19 @@ states = {
 
 ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
 
-singleClick = function() {
-  return console.log("Main got a singleClick reported");
+nClicks = function(count) {
+  return console.log("Main got a " + count + " clicks reported");
 };
 
 btnListener.callbacks = {
-  singleClick: singleClick
+  nClicks: nClicks
 };
 
 listenToButton = function(bdAddr) {
   var cc;
   cc = new FlicChannel(bdAddr);
   button.addConnectionChannel(cc);
-  cc.on("buttonUpOrDown", btnListener.listen);
+  cc.on("buttonUpOrDown", btnListener.listen.bind(btnListener));
   return cc.on("connectionStatusChanged", function(connectionStatus, disconnectReason) {
     var ref;
     return console.log(bdAddr + " " + connectionStatus + ((ref = connectionStatus === "Disconnected") != null ? ref : " " + {

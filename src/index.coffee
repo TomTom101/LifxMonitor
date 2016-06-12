@@ -24,16 +24,17 @@ ambients = [
   [0, 0, 30, 2500]
 ]
 
-singleClick = () ->
-  console.log "Main got a singleClick reported"
+nClicks = (count) ->
+  console.log "Main got a #{count} clicks reported"
+
 btnListener.callbacks =
-  singleClick: singleClick
+  nClicks: nClicks
 
 
 listenToButton = (bdAddr) ->
 	cc = new FlicChannel(bdAddr)
 	button.addConnectionChannel(cc)
-	cc.on "buttonUpOrDown", btnListener.listen
+	cc.on "buttonUpOrDown", btnListener.listen.bind btnListener
 	cc.on "connectionStatusChanged", (connectionStatus, disconnectReason) ->
 		console.log(bdAddr + " " + connectionStatus + (connectionStatus == "Disconnected" ? " " + disconnectReason : ""))
 

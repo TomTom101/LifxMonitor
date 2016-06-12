@@ -8,12 +8,10 @@ ButtonListener =
   longPressTimer: 0
   nClicksTimer: 0
   clickCounter: 0
-
-  init: ->
-    console.log "Alive"
+  acceptTrigger: on
 
   listen: (clickType, wasQueued, timeDiff) ->
-    #console.log "listen #{clickType} #{timeDiff}"
+    console.log "listen #{clickType} #{timeDiff}"
     @[clickType]()
 
   resetTimeout: (timer) ->
@@ -23,24 +21,20 @@ ButtonListener =
   ButtonDown: () ->
     console.log "ButtonDown #{@clickCounter}"
     if @clickCounter is 0
-      @longPressTimer = delay 500, @trigger.bind @, 'longPress'
+      @longPressTimer = delay 300, @trigger.bind @, 'longPress'
 
     @clickCounter++
 
   ButtonUp: () ->
-    console.log "ButtonUp #{typeof @longPressTimer}"
     @resetTimeout @longPressTimer
-    fn =  @trigger.bind @, 'nClicks', @clickCounter
-    @resetTimeout @nClicksTimer    
-    @nClicksTimer = delay 100, fn
-    #@doubleClickTimer = delay 200, @trigger 'longPress'
-    #@trigger 'singleClick'
-
-    #detectedType = 'singleClick'
+    @resetTimeout @nClicksTimer
+    if @clickCounter > 0
+      fn = @trigger.bind @, 'nClicks', @clickCounter
+      @nClicksTimer = delay 500, fn
 
   trigger: (detectedType, count) ->
-      console.log "Trigger #{detectedType}, #{count}"
-      @clickCounter = 0
-      @callbacks[detectedType]?(count)
+    console.log "Trigger #{detectedType}, #{count}"
+    @clickCounter = 0
+    @callbacks[detectedType]?(count)
 
 module.exports = ButtonListener

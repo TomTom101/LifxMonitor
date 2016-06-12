@@ -9,10 +9,9 @@ ButtonListener = {
   longPressTimer: 0,
   nClicksTimer: 0,
   clickCounter: 0,
-  init: function() {
-    return console.log("Alive");
-  },
+  acceptTrigger: true,
   listen: function(clickType, wasQueued, timeDiff) {
+    console.log("listen " + clickType + " " + timeDiff);
     return this[clickType]();
   },
   resetTimeout: function(timer) {
@@ -23,17 +22,18 @@ ButtonListener = {
   ButtonDown: function() {
     console.log("ButtonDown " + this.clickCounter);
     if (this.clickCounter === 0) {
-      this.longPressTimer = delay(500, this.trigger.bind(this, 'longPress'));
+      this.longPressTimer = delay(300, this.trigger.bind(this, 'longPress'));
     }
     return this.clickCounter++;
   },
   ButtonUp: function() {
     var fn;
-    console.log("ButtonUp " + (typeof this.longPressTimer));
     this.resetTimeout(this.longPressTimer);
-    fn = this.trigger.bind(this, 'nClicks', this.clickCounter);
     this.resetTimeout(this.nClicksTimer);
-    return this.nClicksTimer = delay(100, fn);
+    if (this.clickCounter > 0) {
+      fn = this.trigger.bind(this, 'nClicks', this.clickCounter);
+      return this.nClicksTimer = delay(500, fn);
+    }
   },
   trigger: function(detectedType, count) {
     var base;
