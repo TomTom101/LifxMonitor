@@ -26,8 +26,20 @@ ambients = [
 
 longPress = () ->
   console.log "Main got longPress reported"
+  setNextColor()
+
 nClicks = (count) ->
   console.log "Main got #{count} clicks reported"
+  switch count
+    when 1 then togglePower()
+    when 2 then fadeOff()
+
+
+togglePower = ->
+  getPower (power) ->
+    state = if power > 0 then "off" else "on"
+    turnPower state
+
 
 btnListener.callbacks =
   nClicks: nClicks

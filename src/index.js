@@ -1,4 +1,4 @@
-var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, longPress, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, turnPower;
+var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, longPress, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, togglePower, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -39,11 +39,26 @@ states = {
 ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
 
 longPress = function() {
-  return console.log("Main got longPress reported");
+  console.log("Main got longPress reported");
+  return setNextColor();
 };
 
 nClicks = function(count) {
-  return console.log("Main got " + count + " clicks reported");
+  console.log("Main got " + count + " clicks reported");
+  switch (count) {
+    case 1:
+      return togglePower();
+    case 2:
+      return fadeOff();
+  }
+};
+
+togglePower = function() {
+  return getPower(function(power) {
+    var state;
+    state = power > 0 ? "off" : "on";
+    return turnPower(state);
+  });
 };
 
 btnListener.callbacks = {
