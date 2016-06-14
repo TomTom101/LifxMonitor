@@ -11,7 +11,6 @@ ButtonListener = {
   listening: false,
   timeout: 500,
   listen: function(clickType, wasQueued, timeDiff) {
-    console.log("listen " + clickType + " ∆" + timeDiff);
     return this[clickType]();
   },
   resetTimeout: function(timer) {
@@ -20,7 +19,6 @@ ButtonListener = {
     }
   },
   ButtonDown: function() {
-    console.log("ButtonDown #" + this.clickCounter);
     this.listening = true;
     this.resetTimeout(this.evaluateTimer);
     return this.evaluateTimer = delay(this.timeout, this.trigger.bind(this));
@@ -40,7 +38,6 @@ ButtonListener = {
     } else {
       detectedType = 'nClicks';
     }
-    console.log("Trigger " + detectedType + " #" + this.clickCounter);
     if (typeof (base = this.callbacks)[detectedType] === "function") {
       base[detectedType](this.clickCounter);
     }

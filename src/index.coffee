@@ -25,11 +25,11 @@ ambients = [
 ]
 
 longPress = () ->
-  console.log "Main got longPress reported"
+  log "Main got longPress reported"
   setNextColor()
 
 nClicks = (count) ->
-  console.log "Main got #{count} clicks reported"
+  log "Main got #{count} clicks reported"
   switch count
     when 1 then togglePower()
     when 2 then fadeOff()
@@ -51,7 +51,7 @@ listenToButton = (bdAddr) ->
 	button.addConnectionChannel(cc)
 	cc.on "buttonUpOrDown", btnListener.listen.bind btnListener
 	cc.on "connectionStatusChanged", (connectionStatus, disconnectReason) ->
-		console.log(bdAddr + " " + connectionStatus + (connectionStatus == "Disconnected" ? " " + disconnectReason : ""))
+		log(bdAddr + " " + connectionStatus + (connectionStatus == "Disconnected" ? " " + disconnectReason : ""))
 
 lightOnline = ->
     states.light = on
@@ -80,7 +80,7 @@ turnPower = (state) ->
   bedroom = client.light "d073d512170d"
   if bedroom
     bedroom[state] 0, (error, power) ->
-      console.log "turned #{state}"
+      log "turned #{state}"
 
 isPowered = (cb) ->
     bedroom = client.light "d073d512170d"
@@ -100,7 +100,7 @@ getPower = (cb) ->
 setColor = (index) ->
   bedroom = client.light "d073d512170d"
   if bedroom
-    console.log "set to ambient #{index} #{ambients[index]}"
+    log "set to ambient #{index} #{ambients[index]}"
     bedroom["color"].apply bedroom, ambients[index]
     states.ambient = index
 

@@ -39,12 +39,12 @@ states = {
 ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
 
 longPress = function() {
-  console.log("Main got longPress reported");
+  log("Main got longPress reported");
   return setNextColor();
 };
 
 nClicks = function(count) {
-  console.log("Main got " + count + " clicks reported");
+  log("Main got " + count + " clicks reported");
   switch (count) {
     case 1:
       return togglePower();
@@ -73,7 +73,7 @@ listenToButton = function(bdAddr) {
   cc.on("buttonUpOrDown", btnListener.listen.bind(btnListener));
   return cc.on("connectionStatusChanged", function(connectionStatus, disconnectReason) {
     var ref;
-    return console.log(bdAddr + " " + connectionStatus + ((ref = connectionStatus === "Disconnected") != null ? ref : " " + {
+    return log(bdAddr + " " + connectionStatus + ((ref = connectionStatus === "Disconnected") != null ? ref : " " + {
       disconnectReason: ""
     }));
   });
@@ -114,7 +114,7 @@ turnPower = function(state) {
   bedroom = client.light("d073d512170d");
   if (bedroom) {
     return bedroom[state](0, function(error, power) {
-      return console.log("turned " + state);
+      return log("turned " + state);
     });
   }
 };
@@ -147,7 +147,7 @@ setColor = function(index) {
   var bedroom;
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    console.log("set to ambient " + index + " " + ambients[index]);
+    log("set to ambient " + index + " " + ambients[index]);
     bedroom["color"].apply(bedroom, ambients[index]);
     return states.ambient = index;
   }
