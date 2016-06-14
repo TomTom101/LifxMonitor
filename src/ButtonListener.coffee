@@ -5,10 +5,8 @@ delay = (sec, func) ->
 
 ButtonListener =
   callbacks: {}
-  longPressTimer: 0
-  nClicksTimer: 0
+  evaluateTimer: 0
   clickCounter: 0
-  acceptTrigger: on
 
   listen: (clickType, wasQueued, timeDiff) ->
     console.log "listen #{clickType} #{timeDiff}"
@@ -20,21 +18,21 @@ ButtonListener =
 
   ButtonDown: () ->
     console.log "ButtonDown #{@clickCounter}"
-    if @clickCounter is 0
-      @longPressTimer = delay 300, @trigger.bind @, 'longPress'
+    @resetTimeout @evaluateTimer
+    @evaluateTimer = delay 200, @trigger.bind @
 
-    @clickCounter++
 
   ButtonUp: () ->
-    @resetTimeout @longPressTimer
-    @resetTimeout @nClicksTimer
-    if @clickCounter > 0
-      fn = @trigger.bind @, 'nClicks', @clickCounter
-      @nClicksTimer = delay 500, fn
+    @clickCounter++
 
-  trigger: (detectedType, count) ->
-    console.log "Trigger #{detectedType}, #{count}"
+  trigger: () ->
+    if @clickCounter is 0
+      detectedType = 'longPress'
+    else
+      detectedType = 'nClicks'
+
+    console.log "Trigger #{detectedType}, #{@clickCounter}"
+    @callbacks[detectedType]?(@clickCounter)
     @clickCounter = 0
-    @callbacks[detectedType]?(count)
 
 module.exports = ButtonListener
