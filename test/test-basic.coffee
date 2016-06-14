@@ -76,14 +76,3 @@ describe "Init", ->
 
     btnListener.listen 'ButtonDown'
     delay 800, btnListener.listen.bind btnListener, 'ButtonUp'
-
-  it "should not trigger a click after a long press", () ->
-    btnListener.callbacks =
-      longPress: ->
-        console.log 'cb longPress'
-      nClicks: (count)->
-        console.log "cb nClicks #{count}"
-        assert.fail()
-
-    btnListener.listen 'ButtonDown'
-    delay 800, btnListener.listen.bind btnListener, 'ButtonUp'
