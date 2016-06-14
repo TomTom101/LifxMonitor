@@ -11,7 +11,7 @@
 
 export NODE_PATH=$NODE_PATH:/usr/local/bin
 export HOME=/root
-NODESCRIPT=/home/pi/LifxMonitor/
+NODESCRIPT=/home/pi/LifxMonitor/src/
 
 case "$1" in
   start)
