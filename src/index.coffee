@@ -12,7 +12,8 @@ FlicChannel = fliclib.FlicConnectionChannel
 FlicScanner = fliclib.FlicScanner
 
 button = new FlicClient("localhost", 5551)
-delay = (sec, func) -> setInterval func, sec * 1000
+doEvery = (sec, func) -> setInterval func, sec * 1000
+delay = (sec, func) -> setTimeout func, sec * 1000
 
 states =
     time: null
@@ -26,7 +27,12 @@ ambients = [
 
 longPress = () ->
   log "Main got longPress reported"
-  setNextColor()
+  getPower (power) ->
+    if power > 0
+      setNextColor()
+    else
+      setColor [0, 0, 2, 2500]
+      delay 1, -> turnPower 'on'
 
 nClicks = (count) ->
   log "Main got #{count} clicks reported"
@@ -97,17 +103,17 @@ getPower = (cb) ->
           console.error error
         cb power
 
-setColor = (index) ->
+setColor = (color) ->
   bedroom = client.light "d073d512170d"
   if bedroom
-    log "set to ambient #{index} #{ambients[index]}"
-    bedroom["color"].apply bedroom, ambients[index]
-    states.ambient = index
+    log "set to ambient #{color}"
+    bedroom["color"].apply bedroom, color
 
 setNextColor = () ->
   next = states.ambient + 1
   next = 0 if next is ambients.length
-  setColor next
+  states.ambient = next
+  setColor ambients[next]
 
 
 setNightmode = ->
@@ -145,7 +151,7 @@ timeCheck = ->
         else
             states.time = if lm.isLate() then "night" else "day"
 
-delay 60, -> timeCheck()
+doEvery 60, -> timeCheck()
 
 
 client.on 'light-new', (light) ->

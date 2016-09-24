@@ -1,4 +1,4 @@
-var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, longPress, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, togglePower, turnPower;
+var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, doEvery, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, longPress, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, togglePower, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -26,8 +26,12 @@ FlicScanner = fliclib.FlicScanner;
 
 button = new FlicClient("localhost", 5551);
 
-delay = function(sec, func) {
+doEvery = function(sec, func) {
   return setInterval(func, sec * 1000);
+};
+
+delay = function(sec, func) {
+  return setTimeout(func, sec * 1000);
 };
 
 states = {
@@ -40,7 +44,16 @@ ambients = [[0, 0, 100, 6500], [0, 0, 30, 2500]];
 
 longPress = function() {
   log("Main got longPress reported");
-  return setNextColor();
+  return getPower(function(power) {
+    if (power > 0) {
+      return setNextColor();
+    } else {
+      setColor([0, 0, 2, 2500]);
+      return delay(1, function() {
+        return turnPower('on');
+      });
+    }
+  });
 };
 
 nClicks = function(count) {
@@ -143,13 +156,12 @@ getPower = function(cb) {
   }
 };
 
-setColor = function(index) {
+setColor = function(color) {
   var bedroom;
   bedroom = client.light("d073d512170d");
   if (bedroom) {
-    log("set to ambient " + index + " " + ambients[index]);
-    bedroom["color"].apply(bedroom, ambients[index]);
-    return states.ambient = index;
+    log("set to ambient " + color);
+    return bedroom["color"].apply(bedroom, color);
   }
 };
 
@@ -159,7 +171,8 @@ setNextColor = function() {
   if (next === ambients.length) {
     next = 0;
   }
-  return setColor(next);
+  states.ambient = next;
+  return setColor(ambients[next]);
 };
 
 setNightmode = function() {
@@ -211,7 +224,7 @@ timeCheck = function() {
   }
 };
 
-delay(60, function() {
+doEvery(60, function() {
   return timeCheck();
 });
 
