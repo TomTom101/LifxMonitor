@@ -1,4 +1,7 @@
-$ chown pi:pi lifxmonitor.sh && chmod +x lifxmonitor.sh
-$ sudo cp lifxmonitor.sh /etc/init.d/
-$ sudo update-rc.d lifxmonitor.sh defaults
-$ /etc/init.d/lifxmonitor.sh start
+$ pm2 start src/index.js
+$ pm2 save
+
+On restart, hci0 might be DOWN, restart w/
+
+$ sudo hciconfig hci0 up
+$ sudo systemctl restart flix
