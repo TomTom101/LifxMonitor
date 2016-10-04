@@ -49,8 +49,11 @@ longPress = function() {
       return setNextColor();
     } else {
       setColor([0, 0, 2, 2500]);
-      return delay(1, function() {
+      delay(1, function() {
         return turnPower('on');
+      });
+      return delay(60, function() {
+        return fadeOff();
       });
     }
   });
@@ -107,8 +110,11 @@ log = function(s) {
   return console.log(string);
 };
 
-fadeOff = function() {
+fadeOff = function(seconds) {
   var bedroom;
+  if (seconds == null) {
+    seconds = 120;
+  }
   bedroom = client.light("d073d512170d");
   if (bedroom) {
     return bedroom.getPower(function(error, power) {
@@ -116,7 +122,7 @@ fadeOff = function() {
         return console.error(error);
       } else if (power) {
         log("fadeOff");
-        return bedroom.off(2 * 60 * 1000);
+        return bedroom.off(seconds * 1000);
       }
     });
   }

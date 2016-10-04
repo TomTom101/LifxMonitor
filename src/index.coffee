@@ -33,6 +33,7 @@ longPress = () ->
     else
       setColor [0, 0, 2, 2500]
       delay 1, -> turnPower 'on'
+      delay 60, -> fadeOff()
 
 nClicks = (count) ->
   log "Main got #{count} clicks reported"
@@ -71,7 +72,7 @@ log = (s) ->
     string = "#{t} #{s}"
     console.log string
 
-fadeOff = ->
+fadeOff = (seconds=120)->
     bedroom = client.light "d073d512170d"
     if bedroom
       # Fadeoff only when turned on, posibly lost connection and that happens in the middle of the night
@@ -80,7 +81,7 @@ fadeOff = ->
           console.error error
         else if power
           log "fadeOff"
-          bedroom.off 2 * 60 * 1000
+          bedroom.off seconds * 1000
 
 turnPower = (state) ->
   bedroom = client.light "d073d512170d"
