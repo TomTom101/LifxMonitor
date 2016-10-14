@@ -1,4 +1,4 @@
-var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, doEvery, express, fadeOff, fliclib, getPower, http, isPowered, lightOnline, listenToButton, lm, log, longPress, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, togglePower, turnPower;
+var FlicChannel, FlicClient, FlicScanner, LifxClient, ambients, app, btnListener, button, client, delay, doEvery, express, fadeOff, fliclib, getPower, http, isPowered, listenToButton, lm, log, longPress, moment, nClicks, setColor, setDaymode, setNextColor, setNightmode, states, timeCheck, togglePower, turnPower;
 
 LifxClient = require('node-lifx').Client;
 
@@ -93,14 +93,6 @@ listenToButton = function(bdAddr) {
       disconnectReason: ""
     }));
   });
-};
-
-lightOnline = function() {
-  states.light = true;
-  timeCheck();
-  if (states.time === "night") {
-    return fadeOff();
-  }
 };
 
 log = function(s) {
@@ -236,7 +228,7 @@ doEvery(60, function() {
 
 client.on('light-new', function(light) {
   log("New " + light.id);
-  return lightOnline();
+  return states.light = true;
 });
 
 client.on('light-offline', function(light) {
@@ -246,7 +238,7 @@ client.on('light-offline', function(light) {
 
 client.on('light-online', function(light) {
   log("Back " + light.id);
-  return lightOnline();
+  return states.light = true;
 });
 
 button.once("ready", function() {

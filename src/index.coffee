@@ -59,14 +59,7 @@ listenToButton = (bdAddr) ->
 	cc.on "buttonUpOrDown", btnListener.listen.bind btnListener
 	cc.on "connectionStatusChanged", (connectionStatus, disconnectReason) ->
 		log(bdAddr + " " + connectionStatus + (connectionStatus == "Disconnected" ? " " + disconnectReason : ""))
-
-lightOnline = ->
-    states.light = on
-    timeCheck()
-
-    if states.time is "night"
-      fadeOff()
-
+    
 log = (s) ->
     t = moment().format()
     string = "#{t} #{s}"
@@ -158,7 +151,7 @@ doEvery 60, -> timeCheck()
 client.on 'light-new', (light) ->
     log "New #{light.id}"
     ## Goes DIRECTLY to fadeoff after 22, no setNightmode
-    lightOnline()
+    states.light = on
 
 client.on 'light-offline', (light) ->
     log "Lost #{light.id}"
@@ -166,7 +159,7 @@ client.on 'light-offline', (light) ->
 
 client.on 'light-online', (light) ->
     log "Back #{light.id}"
-    lightOnline()
+    states.light = on
 
 button.once "ready", () ->
 	console.log("Connected to daemon!")
